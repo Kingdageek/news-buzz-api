@@ -5,16 +5,22 @@ namespace App\Services;
 use App\Models\Category;
 use App\Models\DataSource;
 use Illuminate\Database\DatabaseManager;
+use App\Repositories\CategoryRepository;
 
 class CategoryService
 {
     private $database;
     private $dataSourceService;
+    private $categoryRepo;
 
-    public function __construct(DatabaseManager $database, DataSourceService $dataSourceService)
-    {
+    public function __construct(
+        DatabaseManager $database,
+        DataSourceService $dataSourceService,
+        CategoryRepository $categoryRepo
+    ) {
         $this->database = $database;
         $this->dataSourceService = $dataSourceService;
+        $this->categoryRepo = $categoryRepo;
     }
 
     /**
@@ -86,5 +92,10 @@ class CategoryService
         // $datasource = $datasources['newyork_times']['class'];
         $datasource = new $datasource();
         return $datasource->fetchCategories();
+    }
+
+    public function getActiveCategories()
+    {
+        return $this->categoryRepo->getCategoriesWithActiveDataSources();
     }
 }

@@ -29,7 +29,7 @@ Route::group(['prefix' => '/v1'], function () {
   });
 
   // jwt protected Routes
-  Route::group(['middleware' => 'jwt.auth'], function() {
+  Route::group(['middleware' => 'jwt.auth'], function () {
     // ADMIN Routes
     Route::group(['middleware' => 'admin', 'prefix' => '/admin'], function () {
       // MANAGE DATASOURCES
@@ -58,6 +58,16 @@ Route::group(['prefix' => '/v1'], function () {
         [CategoryController::class, 'updateCategories']
       );
     });
+
+    // NON-ADMIN ROUTES
+    // SOURCES
+    Route::group(['prefix' => '/sources'], function () {
+      Route::get('/', [SourceController::class, 'getActiveSources']);
+    });
+
+    // CATEGORIES
+    Route::group(['prefix' => '/categories'], function () {
+      Route::get('/', [CategoryController::class, 'getActiveCategories']);
+    });
   });
-  
 });

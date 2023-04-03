@@ -31,4 +31,9 @@ class CategoryController extends Controller
     {
         return $this->categoryService->getCategoryFromAPI();
     }
+
+    public function getActiveCategories() {
+        $data = $this->categoryService->getActiveCategories();
+        return $this->success_response($data);
+    }
 }

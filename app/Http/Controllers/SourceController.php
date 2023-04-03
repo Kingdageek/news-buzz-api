@@ -31,4 +31,10 @@ class SourceController extends Controller
     {
         return $this->sourceService->getSourceFromAPI();
     }
+
+    public function getActiveSources()
+    {
+        $data = $this->sourceService->getActiveSources();
+        return $this->success_response($data);
+    }
 }

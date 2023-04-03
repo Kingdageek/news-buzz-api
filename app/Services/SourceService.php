@@ -22,6 +22,7 @@ class SourceService
     ) {
         $this->database = $database;
         $this->dataSourceService = $dataSourceService;
+        $this->sourceRepository = $sourceRepository;
     }
 
     /**
@@ -90,5 +91,10 @@ class SourceService
         return $this->sourceRepository->getSpecializationByDataSourceId(
             $data_source_id
         );
+    }
+
+    public function getActiveSources()
+    {
+        return $this->sourceRepository->getSourcesWithActiveDataSources();
     }
 }
