@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Source extends Model
+{
+    protected $table = "sources";
+
+    protected $fillable = [
+        "name", "description", "language",
+        "data_source_id", "specialization", "country",
+        "web_url", "str_id"
+    ];
+
+    /**
+     * Get the datasource that owns this news source.
+     */
+    public function dataSource(): BelongsTo
+    {
+        return $this->belongsTo(DataSource::class, 'data_source_id');
+    }
+}
