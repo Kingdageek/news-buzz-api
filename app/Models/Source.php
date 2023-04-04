@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Source extends Model
 {
@@ -21,5 +22,15 @@ class Source extends Model
     public function dataSource(): BelongsTo
     {
         return $this->belongsTo(DataSource::class, 'data_source_id');
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            "user_source",
+            "source_id",
+            "user_id"
+        );
     }
 }

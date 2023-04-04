@@ -19,8 +19,20 @@ class Category extends Model
     public function datasources(): BelongsToMany
     {
         return $this->belongsToMany(
-            DataSource::class, "category_data_source",
-            "category_id", "data_source_id"
+            DataSource::class,
+            "category_data_source",
+            "category_id",
+            "data_source_id"
         )->withTimestamps();
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            "user_category",
+            "category_id",
+            "user_id"
+        );
     }
 }
