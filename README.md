@@ -34,8 +34,24 @@ All typical laravel console commands can be run in sail using `sail artisan CMD-
 -   Generate JWT secret: `sail artisan jwt:secret`
 -   Migrate the database: `sail artisan migrate`
 -   Seed the DB with the dummy admin: `sail artisan db:seed` (this can be skipped actually but then you can't currently create admins via the register endpoint)
--   Get API keys from the external sources used (see the _EXTERNAL SOURCES_ section of the `.env.example` file to see the external sources used)
+-   Get API keys from the external sources used (use links in _External Sources_ below)
 -   Initialize the main entities: `sail artisan app:update-main-entities`
 
 If there are no errors, then you're ready to go :)
 Explore the Routes! You should be able to fetch categories and sources now.
+
+### External Sources
+
+Three external sources are currently used:
+
+-   [https://newsapi.org/] NewsAPI
+-   [https://open-platform.theguardian.com/access/] The Guardian
+-   [https://developer.nytimes.com/] The New York Times
+
+More external API sources can be easily added with little change to the existing codebase. To add a source:
+
+-   Include the config in the `config/datasource.php` file i.e. specify the base url, the api key etc exactly as the others are specified
+-   Create a client class for your external datasource in the `app/DataSources` directory. This client MUST implement the `App\DataSources\DataSource` interface. Here you query the API in its own required format, and ensure the response is parsed to suit the interface requirements
+-   Update Main Entities: `sail artisan app:update-main-entities`
+
+Your source is ready to be used!
