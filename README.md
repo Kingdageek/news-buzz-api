@@ -1,66 +1,41 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## News Buzz API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+News Buzz is a news aggregator platform built on Laravel. This repo provides APIs that supports the platform.
 
-## About Laravel
+There are three main entities:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+-   Datasources: External APIs that news are fetched from (this is entirely hidden from users)
+-   Sources: Actual News sources, some external APIs have several of these
+-   Categories: News sources categorize their articles
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Current Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   Authentication: User login and registration
+-   User Roles: Just two currently available (READER & ADMIN) (see `App\Constants\UserRoles`)
+-   Preferences/Customization: User can choose which news sources and categories to see on their feed
+-   Newsfeed: News aggregated from the available data sources depending on chosen preferences
+-   Search & filter: News can be searched by search keyword and filtered using source, category, and date
+-   News Sources and Categories from different datasources can be fetched
+-   Datasources can be auto deactivated by admins
+-   Datasources, News Sources and Categories can be auto updated by admins
+-   Basic caching
 
-## Learning Laravel
+### To Run
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The app uses Laravel sail that provides an easy way to run docker apps, so, you have to have _Docker compose_ installed.
+All typical laravel console commands can be run in sail using `sail artisan CMD-NAME`. The typical docker compose syntax still works too, in this case, you'd do: `docker compose exec CONTAINER-NAME php artisan CMD-NAME`.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**STEPS**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   copy the `.env.example` file to a `.env` file in the same base directory:
+    `cp .env.example .env`
+-   Run sail: `sail up` or in detached mode with `sail up -d`
+-   Generate app key: `sail artisan key:generate`
+-   Generate JWT secret: `sail artisan jwt:secret`
+-   Migrate the database: `sail artisan migrate`
+-   Seed the DB with the dummy admin: `sail artisan db:seed` (this can be skipped actually but then you can't currently create admins via the register endpoint)
+-   Get API keys from the external sources used (see the _EXTERNAL SOURCES_ section of the `.env.example` file to see the external sources used)
+-   Initialize the main entities: `sail artisan app:update-main-entities`
 
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+If there are no errors, then you're ready to go :)
+Explore the Routes! You should be able to fetch categories and sources now.
