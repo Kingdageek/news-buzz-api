@@ -11,7 +11,7 @@ There are three main entities:
 ### Current Features
 
 -   Authentication: User login and registration
--   User Roles: Just two currently available (READER & ADMIN) (see `App\Constants\UserRoles`)
+-   User Roles: Just two currently available (READER & ADMIN) (see class `App\Constants\UserRole`)
 -   Preferences/Customization: User can choose which news sources and categories to see on their feed
 -   Newsfeed: News aggregated from the available data sources depending on chosen preferences
 -   Search & filter: News can be searched by search keyword and filtered using source, category, and date
