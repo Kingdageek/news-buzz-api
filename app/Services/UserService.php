@@ -76,6 +76,9 @@ class UserService
             // attach the desired categories and sources to the user
             $user->categories()->attach($category_ids);
             $user->sources()->attach($source_ids);
+
+            // invalidate user feed cache on preference update
+            CacheService::deleteUserFeed($user_id);
             $this->database->commit();
         } catch (\Exception $e) {
             $this->database->rollback();
@@ -90,5 +93,16 @@ class UserService
         $preferences["categories"] = $user->categories()->get();
         $preferences["sources"] = $user->sources()->get();
         return $preferences;
+    }
+
+    public function hasUserPreferences(int $user_id): bool
+    {
+        $preferences = $this->getUserPreferences($user_id);
+        $categories = $preferences["categories"];
+        $sources = $preferences["sources"];
+        if (count($categories) > 0 && count($sources) > 0) {
+            return true;
+        }
+        return false;
     }
 }

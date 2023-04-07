@@ -11,19 +11,28 @@ class NewsFeedService
     private $dataSourceService;
     private $sourceRepo;
     private $categoryRepo;
+    private $userService;
 
     public function __construct(
         DataSourceService $dataSourceService,
         SourceRepository $sourceRepo,
-        CategoryRepository $categoryRepo
+        CategoryRepository $categoryRepo,
+        UserService $userService
     ) {
         $this->dataSourceService = $dataSourceService;
         $this->sourceRepo = $sourceRepo;
         $this->categoryRepo = $categoryRepo;
+        $this->userService = $userService;
     }
 
     public function fetchUserFeed(int $user_id)
     {
+        // Try to get feeds from cache first
+        $hasUserPreferences = $this->userService->hasUserPreferences($user_id);
+        $feed = CacheService::getUserFeed($user_id, $hasUserPreferences);
+        if (isset($feed)) {
+            return $feed;
+        }
         // posts array to gather all posts from all datasources
         $feed = [];
         // get active datasources
@@ -52,7 +61,9 @@ class NewsFeedService
             // join posts together
             $feed = array_merge($feed, $posts);
         }
-        dd($feed);
+        // dd($feed);
+        // cache feed
+        CacheService::setUserFeed($user_id, $feed, $hasUserPreferences);
         return $feed;
     }
 }
