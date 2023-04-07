@@ -23,12 +23,13 @@ There are three main entities:
 ### To Run
 
 The app uses Laravel sail that provides an easy way to run docker apps, so, you have to have _Docker compose_ installed.
-All typical laravel console commands can be run in sail using `sail artisan CMD-NAME`. The typical docker compose syntax still works too, in this case, you'd do: `docker compose exec CONTAINER-NAME php artisan CMD-NAME`.
+All typical laravel console commands can be run in sail using `./vendor/bin/sail artisan CMD-NAME`. The typical docker compose syntax still works too, in this case, you'd do: `docker compose exec CONTAINER-NAME php artisan CMD-NAME`.
 
 **STEPS**
 
 -   copy the `.env.example` file to a `.env` file in the same base directory:
     `cp .env.example .env`
+-   _IMPORTANT_: Create an alias for sail for that bash session: `alias sail=./vendor/bin/sail`
 -   Run sail: `sail up` or in detached mode with `sail up -d`
 -   Generate app key: `sail artisan key:generate`
 -   Generate JWT secret: `sail artisan jwt:secret`
