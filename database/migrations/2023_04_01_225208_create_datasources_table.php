@@ -1,6 +1,5 @@
 <?php
 
-use App\Constants\UserRole;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('datasources', function (Blueprint $table) {
             $table->id();
-            $table->string('firstname');
-            $table->string('lastname');
-            $table->string('email')->unique()->nullable();
-            $table->string('password')->nullable();
-            $table->string('role')->default(UserRole::READER);
-            $table->rememberToken();
+            $table->string("name");
+            $table->string("description");
+            $table->string("str_id");
+            $table->string("base_url");
+            $table->boolean("is_active");
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('datasources');
     }
 };

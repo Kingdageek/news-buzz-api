@@ -54,4 +54,55 @@ class UserService
 
         return $user;
     }
+
+    public function updateUserPreferences(array $params, int $user_id)
+    {
+        $user = User::findOrFail($user_id);
+        $categories = $params["categories"];
+        $sources = $params["sources"];
+        $category_ids = [];
+        foreach ($categories as $category) {
+            array_push($category_ids, $category["id"]);
+        }
+        $source_ids = [];
+        foreach ($sources as $source) {
+            array_push($source_ids, $source["id"]);
+        }
+        $this->database->beginTransaction();
+        try {
+            // detach first incase already attached
+            $user->categories()->detach($category_ids);
+            $user->sources()->detach($source_ids);
+            // attach the desired categories and sources to the user
+            $user->categories()->attach($category_ids);
+            $user->sources()->attach($source_ids);
+
+            // invalidate user feed cache on preference update
+            CacheService::deleteUserFeed($user_id);
+            $this->database->commit();
+        } catch (\Exception $e) {
+            $this->database->rollback();
+            throw $e;
+        }
+        return $params;
+    }
+
+    public function getUserPreferences(int $user_id): array
+    {
+        $user = User::findOrFail($user_id);
+        $preferences["categories"] = $user->categories()->get();
+        $preferences["sources"] = $user->sources()->get();
+        return $preferences;
+    }
+
+    public function hasUserPreferences(int $user_id): bool
+    {
+        $preferences = $this->getUserPreferences($user_id);
+        $categories = $preferences["categories"];
+        $sources = $preferences["sources"];
+        if (count($categories) > 0 && count($sources) > 0) {
+            return true;
+        }
+        return false;
+    }
 }

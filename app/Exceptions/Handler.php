@@ -105,6 +105,15 @@ class Handler extends ExceptionHandler
             ], 401);
         }
 
+        // base exception
+        // if ($exception instanceof \Exception) {
+        //     return response()->json([
+        //         'message' => "Oops... Something went terribly wrong",
+        //         'error' => $exception->getMessage(),
+        //         'status' => false
+        //     ], 500);
+        // }
+
         return parent::render($request, $exception);
     }
 }
