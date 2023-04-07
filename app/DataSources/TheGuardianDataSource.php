@@ -45,9 +45,10 @@ class TheGuardianDataSource implements DataSource
         return $post;
     }
 
-    public function searchPosts(array $params): array
+    public function searchPosts(FeedRequest $feedRequest): array
     {
-        return [];
+        $posts = $this->fetchPosts($feedRequest);
+        return $posts;
     }
 
     public function fetchPosts(FeedRequest $feedRequest): array
@@ -63,6 +64,18 @@ class TheGuardianDataSource implements DataSource
         if (isset($categories) && count($categories) > 0) {
             $category_req_str = $this->getCategoriesAsString($categories);
             $url = $url . "&section=$category_req_str";
+        }
+
+        if (isset($feedRequest->search_keyword)) {
+            $url = $url . "&q=" . $feedRequest->search_keyword;
+        }
+
+        if (isset($feedRequest->from_date)) {
+            $url = $url . "&from-date=" . $feedRequest->from_date;
+        }
+
+        if (isset($feedRequest->to_date)) {
+            $url = $url . "&to-date" . $feedRequest->to_date;
         }
         $response = $this->client->request('GET', $url, [
             'headers' => $this->headers

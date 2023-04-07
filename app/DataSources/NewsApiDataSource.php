@@ -183,10 +183,34 @@ class NewsApiDataSource implements DataSource
         return true;
     }
 
-    public function searchPosts(array $params): array
+    public function searchPosts(FeedRequest $feedRequest): array
     {
-        // GET https://newsapi.org/v2/everything?q=apple&from=2023-04-01&to=2023-04-01&sortBy=popularity
-        return [];
+        $source = $feedRequest->sources[0]["str_id"];
+        // GET https://newsapi.org/v2/everything?q=apple&from=2023-04-01&to=2023-04-01&sortBy=popularity&sources=source_id
+        $url = $this->base_url . "everything?q=" . $feedRequest->search_keyword .
+            "&sources=$source" . "&page=". $feedRequest->page . 
+            "&pageSize=" . $feedRequest->page_size;
+        if (isset($feedRequest->from_date)) {
+            $url = $url . "&from=" . $feedRequest->from_date;
+        }
+        if (isset($feedRequest->to_date)) {
+            $url = $url . "&to=" . $feedRequest->to_date;
+        }
+        $response = $this->client->request('GET', $url, [
+            'headers' => $this->headers
+        ]);
+        $result = $response->getBody()->getContents();
+        $result = json_decode($result, true);
+        // dd($result);
+        $posts = [];
+        if (isset($result["status"]) && $result["status"] == "ok") {
+            foreach ($result['articles'] as $data) {
+                $data["data_source_id"] = $this->datasource->id;
+                $post = $this->transformResultToPost($data);
+                array_push($posts, $post);
+            }
+        }
+        return $posts;
     }
 
     public function getStrId(): string

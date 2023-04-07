@@ -69,4 +69,9 @@ class DataSourceService
     {
         return DataSource::where("str_id", $datasource_str_id)->first();
     }
+
+    public function getDataSourceById($datasource_id)
+    {
+        return DataSource::findOrFail($datasource_id);
+    }
 }

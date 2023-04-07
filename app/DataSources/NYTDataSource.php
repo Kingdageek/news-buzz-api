@@ -35,16 +35,6 @@ class NYTDataSource implements DataSource
 
     public function transformResultToPost($data): Post
     {
-        //     public $title;
-        // public $description;
-        // public $content;
-        // public $source;
-        // public $category;
-        // public $image_url;
-        // public $web_url;
-        // public $date_published;
-        // public $data_source_id;
-        // public $author;
         $post = new Post();
         $post->title = $data["headline"]["main"];
         $post->description = $data["abstract"];
@@ -82,7 +72,20 @@ class NYTDataSource implements DataSource
             $url = $url . " AND news_desk:($category_req_str)";
         }
         // dd($categories, $url);
+        if (isset($feedRequest->search_keyword)) {
+            $url = $url . "&q=" . $feedRequest->search_keyword;
+        }
 
+        if (isset($feedRequest->from_date)) {
+            // The NYT api requires date to be of format: YYYYmmdd
+            $from_date = str_replace("-", "", $feedRequest->from_date);
+            $url = $url . "&begin_date=" . $from_date;
+        }
+
+        if (isset($feedRequest->to_date)) {
+            $to_date = str_replace("-", "", $feedRequest->to_date);
+            $url = $url . "&end_date" . $to_date;
+        }
         $response = $this->client->request('GET', $url, [
             'headers' => $this->headers
         ]);
@@ -257,9 +260,10 @@ class NYTDataSource implements DataSource
         return false;
     }
 
-    public function searchPosts(array $params): array
+    public function searchPosts(FeedRequest $feedRequest): array
     {
-        return [];
+        $posts = $this->fetchPosts($feedRequest);
+        return $posts;
     }
 
     public function getStrId(): string

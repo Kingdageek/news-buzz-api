@@ -66,4 +66,18 @@ class NewsFeedService
         CacheService::setUserFeed($user_id, $feed, $hasUserPreferences);
         return $feed;
     }
+
+    public function searchFeed(FeedRequest $feedRequest)
+    {
+        // You can only choose one source
+        // That source then loads the categories peculiar to that source
+        $source = $feedRequest->sources[0];
+        $data_source_id = $source["data_source_id"];
+        $datasource = $this->dataSourceService
+            ->getDataSourceById($data_source_id);
+        $datasourceClass = config("datasource")[$datasource->str_id]["class"];
+        $datasourceObj = new $datasourceClass();
+        $feed = $datasourceObj->searchPosts($feedRequest);
+        return $feed;
+    }
 }

@@ -82,8 +82,8 @@ Route::group(['prefix' => '/v1'], function () {
 
       /// FEED
       Route::group(['prefix' => '/feeds'], function () {
+        Route::post("/search", [NewsFeedController::class, 'searchFeed']);
         Route::get("/{user_id}", [NewsFeedController::class, 'fetchUserFeed']);
-        Route::get("/search", [NewsFeedController::class, 'searchFeed']);
       });
     });
   });

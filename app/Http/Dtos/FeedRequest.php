@@ -2,8 +2,6 @@
 
 namespace App\Http\Dtos;
 
-use Illuminate\Support\Facades\Date;
-
 class FeedRequest
 {
     public int $user_id;
@@ -14,7 +12,8 @@ class FeedRequest
     public array $sources;
     // Array of Category objects [id,name]
     public array $categories;
-    public Date $from_date;
-    public Date $to_date;
-    public string $sortBy;
+    // format: YYYY-mm-dd
+    public $from_date;
+    public $to_date;
+    public $sortBy;
 }

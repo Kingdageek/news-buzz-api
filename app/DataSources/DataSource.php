@@ -34,7 +34,7 @@ interface DataSource
     /**
      * @return Post[]
      */
-    public function searchPosts(array $params): array;
+    public function searchPosts(FeedRequest $feedRequest): array;
 
     /**
      * Key as defined in the config("datasources") file
