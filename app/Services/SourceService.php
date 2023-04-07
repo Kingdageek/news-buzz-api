@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Http\Dtos\NewsSource;
 use App\Models\Source;
 use App\Repositories\SourceRepository;
-use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Database\DatabaseManager;
 
 class SourceService

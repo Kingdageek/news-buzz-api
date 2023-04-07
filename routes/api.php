@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DataSourceController;
 use App\Http\Controllers\SourceController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\NewsFeedController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -72,11 +73,17 @@ Route::group(['prefix' => '/v1'], function () {
     });
 
     /// USERS
-    Route::group(['prefix'=>'/users'], function() {
+    Route::group(['prefix' => '/users'], function () {
       /// PREFERENCES
-      Route::group(['prefix' => '/preferences'], function() {
+      Route::group(['prefix' => '/preferences'], function () {
         Route::patch("/{user_id}", [UserController::class, 'updateUserPreferences']);
         Route::get('/{user_id}', [UserController::class, 'getUserPreferences']);
+      });
+
+      /// FEED
+      Route::group(['prefix' => '/feeds'], function () {
+        Route::get("/{user_id}", [NewsFeedController::class, 'fetchUserFeed']);
+        Route::get("/search", [NewsFeedController::class, 'searchFeed']);
       });
     });
   });

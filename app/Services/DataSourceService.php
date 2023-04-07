@@ -59,4 +59,14 @@ class DataSourceService
         );
         return $datasource->is_active;
     }
+
+    public function getActiveDataSources()
+    {
+        return DataSource::where("is_active", 1)->get();
+    }
+
+    public function getDataSourceByStrId($datasource_str_id)
+    {
+        return DataSource::where("str_id", $datasource_str_id)->first();
+    }
 }

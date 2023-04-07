@@ -24,4 +24,12 @@ class SourceRepository
         WHERE `d`.`is_active`=1";
         return DB::select($query);
     }
+
+    public function getSourcesForUserAndDataSource($user_id, $datasource_id)
+    {
+        $query = "SELECT `s`.`id`, `s`.`name`, `s`.`str_id` FROM `sources` as `s`
+        INNER JOIN `user_source` as `us` ON `s`.`id`=`us`.`source_id`
+        WHERE `s`.`data_source_id`=$datasource_id and `us`.`id`=$user_id";
+        return DB::select($query);
+    }
 }

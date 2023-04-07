@@ -4,12 +4,14 @@ namespace App\Http\Dtos;
 
 class Post
 {
-    public string $title;
-    public string $description;
-    public string $content;
-    public string $source;
-    public string $category;
-    public string $image_url;
-    public string $web_url;
-    public string $date_published;
+    public $title;
+    public $description;
+    public $content;
+    public $source;
+    public $category;
+    public $image_url;
+    public $web_url;
+    public $date_published;
+    public $data_source_id;
+    public $author;
 }

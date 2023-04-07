@@ -3,6 +3,7 @@
 namespace App\DataSources;
 
 use App\DataSources\DataSource;
+use App\Http\Dtos\FeedRequest;
 use App\Http\Dtos\Post;
 use App\Http\Dtos\NewsSource;
 use App\Models\DataSource as DataSourceModel;
@@ -13,6 +14,8 @@ class NYTDataSource implements DataSource
 {
     private $client;
     private $headers;
+    private $datasource;
+    private $base_url;
 
     public function __construct()
     {
@@ -21,16 +24,91 @@ class NYTDataSource implements DataSource
             "Accept" => "application/json",
             // "X-Api-Key" => config("datasource")[$this->getStrId()]['api_key']
         ];
+        $str_id = $this->getStrId();
+        $datasource = DataSourceModel::where("str_id", $str_id)->first();
+        if (!$datasource) {
+            throw new ModelNotFoundException("$str_id datasource not found");
+        }
+        $this->datasource = $datasource;
+        $this->base_url = config("datasource")[$this->getStrId()]["base_url"];
     }
 
     public function transformResultToPost($data): Post
     {
-        return new Post();
+        //     public $title;
+        // public $description;
+        // public $content;
+        // public $source;
+        // public $category;
+        // public $image_url;
+        // public $web_url;
+        // public $date_published;
+        // public $data_source_id;
+        // public $author;
+        $post = new Post();
+        $post->title = $data["headline"]["main"];
+        $post->description = $data["abstract"];
+        $main_url = "https://www.nytimes.com/";
+        // Take first image from multimedia
+        $post->image_url = count($data["multimedia"]) > 0
+            ? $main_url . $data["multimedia"][0]["url"] : null;
+        $post->source = $data["source"];
+        $post->web_url = $data["web_url"];
+        $post->date_published = $data["pub_date"];
+        $post->category = $data["news_desk"];
+        $post->data_source_id = $data["data_source_id"];
+        $post->author = $data["byline"]["original"];
+        return $post;
     }
 
-    public function fetchPosts(): array
+    public function fetchPosts(FeedRequest $feedRequest): array
     {
-        return [];
+        // GET https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=lDwNDj0dQ3IULwCIjfLStZFfpmB2XYPP&page=0&maximum=20&fq=source:(%22The%20New%20York%20Times%22)%20AND%20news_desk:(%22Sports%22,%20%22Foreign%22)
+
+        // Restricting to one news source: The NYT -> only categories
+        // are of concern
+        $api_key = config("datasource")[$this->getStrId()]["api_key"];
+        // Pages for NYT uses zero-based indexing
+        $feedRequest->page = $feedRequest->page - 1;
+        // Very sensitive of quotes too, only double quotes work
+        // Don't think this 'minimum' page size works. It always returns
+        // 10 articles per request
+        $url = $this->base_url . "articlesearch.json?api-key=$api_key&page=" .
+            $feedRequest->page . "&minimum=" . $feedRequest->page_size .
+            "&fq=source:(\"The New York Times\")";
+        $categories = $feedRequest->categories;
+        if (isset($categories) && count($categories) > 0) {
+            $category_req_str = $this->getCategoriesAsString($categories);
+            $url = $url . " AND news_desk:($category_req_str)";
+        }
+        // dd($categories, $url);
+
+        $response = $this->client->request('GET', $url, [
+            'headers' => $this->headers
+        ]);
+        $result = $response->getBody()->getContents();
+        $result = json_decode($result, true);
+        // dd($result);
+        $posts = [];
+        if (isset($result["status"]) && $result["status"] == "OK") {
+            foreach ($result['response']['docs'] as $data) {
+                $data["data_source_id"] = $this->datasource->id;
+                $post = $this->transformResultToPost($data);
+                array_push($posts, $post);
+            }
+        }
+        return $posts;
+    }
+
+    private function getCategoriesAsString(array $categories): string
+    {
+        $category_arr = [];
+        foreach ($categories as $category) {
+            $name = $category->name;
+            $name = '"' . $name . '"';
+            array_push($category_arr, $name);
+        }
+        return implode(",", $category_arr);
     }
 
     public function transformResultToSource($data): NewsSource
@@ -40,21 +118,16 @@ class NYTDataSource implements DataSource
 
     public function fetchSources(): array
     {
-        $str_id = $this->getStrId();
-        $datasource = DataSourceModel::where("str_id", $str_id)->first();
-        if (!$datasource) {
-            throw new ModelNotFoundException("$str_id datasource not found");
-        }
-        // The Guardian is the only source. So, to be specified manually
+        // The New York Times is the only source. So, to be specified manually
         $newsSource = new NewsSource();
         $newsSource->name = "New York Times";
         $newsSource->description = "Articles from The New York Times";
         $newsSource->web_url = "https://www.nytimes.com";
-        $newsSource->str_id = $str_id;
+        $newsSource->str_id = $this->getStrId();
         $newsSource->specialization = "general";
         $newsSource->language = "en";
         $newsSource->country = "us";
-        $newsSource->data_source_id = $datasource->id;
+        $newsSource->data_source_id = $this->datasource->id;
         return [$newsSource];
     }
 
@@ -181,7 +254,7 @@ class NYTDataSource implements DataSource
 
     public function hasMultipleSources(): bool
     {
-        return true;
+        return false;
     }
 
     public function searchPosts(array $params): array
